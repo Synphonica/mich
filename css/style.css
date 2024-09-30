@@ -1,0 +1,85 @@
+/* Fondo del cuerpo */
+body {
+    font-family: 'Caveat Brush', cursive; /* Fuente Caveat Brush */
+    color: #f296c0; /* Color rosado para todo el texto */
+    position: relative;
+    min-height: 100vh; /* Garantizar que el contenido ocupe al menos el alto de la ventana */
+    padding-bottom: 100px; /* Reservar espacio para el footer */
+    margin: 0;
+    overflow: hidden;
+    overflow-y: auto;
+}
+
+body::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../img/sakura.jpg');
+    background-size: cover;
+    background-attachment: fixed;
+    opacity: 0.31; /* 31% de transparencia */
+    z-index: -1; /* Colocar detrás del contenido */
+}
+
+/* Fondo rosado claro para la barra de navegación */
+.navbar {
+    background-color: #ffd6e8 !important; /* Rosado muy claro */
+    height: 100px; /* Ajustar la altura de la barra de navegación */
+}
+
+/* Estilo para los enlaces del navbar */
+.nav-link {
+    color: #ffffff !important; /* Color blanco para los enlaces */
+    font-weight: bold; /* Texto en negrita */
+    font-size: 1.5em;
+}
+
+.nav-link:hover {
+    color: #000000 !important; /* Color negro al pasar el cursor */
+}
+
+/* Clase active para la categoría actual */
+.nav-link.active {
+    color: #ff69b4 !important; /* Color rosado para la categoría activa */
+    font-weight: bold; /* Resaltar con negrita */
+}
+
+/* Estilo para el botón de administración */
+.admin-btn {
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+    font-size: 1.5em;
+}
+
+.admin-btn:hover {
+    background-color: #ff1493;
+    border-color: #ff1493;
+}
+
+/* Ajustes para títulos y párrafos */
+h1, h2, h3, h4, h5, h6, p {
+    font-family: 'Caveat Brush', cursive; /* Fuente Caveat Brush para títulos y textos */
+    color: #f296c0; /* Color rosado */
+}
+
+.logo {
+    height: 100px; /* Ajustar el tamaño del logo */
+}
+
+.letras {
+    font-size: 1.5em;
+}
+
+.btn-outline-success {
+    color: #ff69b4;
+    border-color: #ff69b4;
+}
+
+.btn-outline-success:hover {
+    color: #fff;
+    background-color: #ff69b4;
+    border-color: #ff69b4;
+}

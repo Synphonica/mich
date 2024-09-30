@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mumi Merch - Panel de Administrador</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Incluir la fuente Caveat Brush desde Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Caveat+Brush&display=swap" rel="stylesheet">
+    
+    <!-- Enlace a tu CSS personalizado -->
+    <link href="/css/style.css" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="container">
+                <a class="navbar-brand" href="../index.html">
+                    <img src="../img/Mumi.jpg" class="logo">
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="peluches.html">Peluches</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="accesorios.html">Accesorios</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="indumentaria.html">Indumentaria</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="decoracion.html">Decoración</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="personajes.html">Personajes</a>
+                        </li>
+                    </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        <li class="nav-item">
+                            <a class="nav-link" href="login.html">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="register.html">Register</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="panel_de_administrador.html" class="btn admin-btn ms-2">Administración</a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main class="container mt-4">
+        <h1>Panel de Administrador</h1>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Agregar/Editar Producto</h2>
+                <form id="formulario-producto">
+                    <input type="hidden" id="id-producto">
+                    <div class="mb-3">
+                        <label for="nombre-producto" class="form-label">Nombre del Producto</label>
+                        <input type="text" class="form-control" id="nombre-producto" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="precio-producto" class="form-label">Precio</label>
+                        <input type="number" class="form-control" id="precio-producto" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="categoria-producto" class="form-label">Categoría</label>
+                        <select class="form-control" id="categoria-producto" required>
+                            <option value="">Seleccionar...</option>
+                            <option value="peluches">Peluches</option>
+                            <option value="accesorios">Accesorios</option>
+                            <option value="indumentaria">Indumentaria</option>
+                            <option value="decoracion">Decoración</option>
+                            <option value="personajes">Personajes</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="imagen-producto" class="form-label">Imagen del Producto</label>
+                        <input type="file" class="form-control" id="imagen-producto" accept="image/*">
+                    </div>
+                    <button type="submit" class="btn admin-btn">Guardar Producto</button>
+                </form>
+            </div>
+            <div class="col-md-6">
+                <h2>Lista de Productos</h2>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Precio</th>
+                            <th>Categoría</th>
+                            <th>Imagen</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="lista-productos">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../scripts/admin.js"></script>
+</body>
+</html>
