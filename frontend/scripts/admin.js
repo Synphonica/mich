@@ -1,120 +1,122 @@
-// Inicializar productos desde localStorage o establecer un array vacío si no hay productos almacenados
-let productos = JSON.parse(localStorage.getItem('productos')) || [];
+import { obtenerCategorias } from './apiCategorias.js';  // Importamos la API de categorías
+import { obtenerProductos, crearProducto, actualizarProducto, eliminarProducto } from './apiProductos.js';  // Importamos la API de productos
 
-// Función para mostrar productos en el panel de administración
-function mostrarProductos() {
-    const listaProductos = document.getElementById('lista-productos');
-    listaProductos.innerHTML = ''; // Limpiar el contenido antes de añadir productos
+// Cargar categorías en el <select> del formulario de productos
+async function cargarCategorias() {
+    try {
+        const categorias = await obtenerCategorias();  // Llamamos a la API de categorías
+        const selectCategoria = document.getElementById('categoria-producto');
+        selectCategoria.innerHTML = '';  // Limpiamos el select antes de agregar las categorías
 
-    productos.forEach(producto => {
-        const fila = crearFilaProducto(producto);
-        listaProductos.appendChild(fila);
-    });
-
-    // Añadir eventos para editar y eliminar productos
-    document.querySelectorAll('.editar-producto').forEach(boton => {
-        boton.addEventListener('click', editarProducto);
-    });
-
-    document.querySelectorAll('.eliminar-producto').forEach(boton => {
-        boton.addEventListener('click', eliminarProducto);
-    });
+        categorias.forEach(categoria => {
+            const option = document.createElement('option');
+            option.value = categoria.id;
+            option.textContent = categoria.nombre;
+            selectCategoria.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error al cargar categorías:', error.message);
+    }
 }
 
-// Función para crear una fila de producto
-function crearFilaProducto(producto) {
-    const fila = document.createElement('tr');
-    fila.innerHTML = `
-        <td>${producto.nombre}</td>
-        <td>$${producto.precio.toFixed(2)}</td>
-        <td>${producto.categoria}</td>
-        <td><img src="${producto.imagen}" alt="${producto.nombre}" style="width: 50px; height: 50px;"></td>
-        <td>
-            <button class="btn btn-sm btn-primary editar-producto" data-id="${producto.id}">Editar</button>
-            <button class="btn btn-sm btn-danger eliminar-producto" data-id="${producto.id}">Eliminar</button>
-        </td>`;
-    return fila;
+// Mostrar todos los productos desde la API
+async function mostrarProductos() {
+    try {
+        const productos = await obtenerProductos();
+        const listaProductos = document.getElementById('lista-productos');
+        listaProductos.innerHTML = '';  // Limpiar la tabla antes de agregar los productos
+
+        productos.forEach(producto => {
+            const fila = document.createElement('tr');
+            fila.innerHTML = `
+                <td>${producto.nombre}</td>
+                <td>${producto.descripcion}</td>
+                <td>$${producto.precio.toFixed(2)}</td>
+                <td>${producto.categoria_nombre}</td>
+                <td><img src="http://localhost:4000/uploads/${producto.imagen}" alt="${producto.nombre}" width="50"></td>
+                <td>
+                    <button class="btn btn-primary editar-producto" data-id="${producto.id}">Editar</button>
+                    <button class="btn btn-danger eliminar-producto" data-id="${producto.id}">Eliminar</button>
+                </td>
+            `;
+            listaProductos.appendChild(fila);
+
+            // Añadir eventos de edición y eliminación
+            fila.querySelector('.editar-producto').addEventListener('click', () => cargarProductoEnFormulario(producto));
+            fila.querySelector('.eliminar-producto').addEventListener('click', () => eliminarProductoEvento(producto.id));
+        });
+    } catch (error) {
+        console.error('Error al obtener productos:', error.message);
+    }
 }
 
-// Función para convertir la imagen en Base64
-function convertirImagenABase64(archivo) {
-    return new Promise((resolve, reject) => {
-        const lector = new FileReader();
-        lector.onload = () => resolve(lector.result);
-        lector.onerror = (error) => reject(error);
-        lector.readAsDataURL(archivo);
-    });
+// Cargar un producto en el formulario para editarlo
+function cargarProductoEnFormulario(producto) {
+    document.getElementById('id-producto').value = producto.id;
+    document.getElementById('nombre-producto').value = producto.nombre;
+    document.getElementById('descripcion-producto').value = producto.descripcion;
+    document.getElementById('precio-producto').value = producto.precio;
+    document.getElementById('categoria-producto').value = producto.categoria_id;
 }
 
-// Función para guardar un nuevo producto o actualizar uno existente
-async function guardarProducto(evento) {
-    evento.preventDefault(); // Evitar el envío del formulario
+// Manejar la creación o edición de productos
+document.getElementById('formulario-producto').addEventListener('submit', async (evento) => {
+    evento.preventDefault();
 
     const idProducto = document.getElementById('id-producto').value;
     const nombre = document.getElementById('nombre-producto').value;
+    const descripcion = document.getElementById('descripcion-producto').value;
     const precio = parseFloat(document.getElementById('precio-producto').value);
-    const categoria = document.getElementById('categoria-producto').value;
+    const categoria_id = document.getElementById('categoria-producto').value;
     const archivoImagen = document.getElementById('imagen-producto').files[0];
 
-    let imagenBase64 = '';
-
-    if (archivoImagen) {
-        imagenBase64 = await convertirImagenABase64(archivoImagen);
+    // Verifica si todos los datos del producto están correctamente asignados
+    if (!nombre || !descripcion || isNaN(precio) || !categoria_id || !archivoImagen) {
+        alert('Todos los campos son obligatorios, incluyendo la imagen.');
+        return;
     }
 
-    if (idProducto) {
-        // Actualizar producto existente
-        const indice = productos.findIndex(p => p.id === parseInt(idProducto));
-        productos[indice] = { 
-            id: parseInt(idProducto), 
-            nombre, 
-            precio, 
-            categoria, 
-            imagen: imagenBase64 || productos[indice].imagen 
-        };
-    } else {
-        // Crear un nuevo producto
-        const nuevoId = productos.length > 0 ? productos[productos.length - 1].id + 1 : 1;
-        const nuevoProducto = { id: nuevoId, nombre, precio, categoria, imagen: imagenBase64 };
-        productos.push(nuevoProducto);
+    const producto = {
+        nombre,
+        descripcion,
+        precio,
+        categoria_id
+    };
+
+    try {
+        if (idProducto) {
+            // Actualizar producto existente
+            await actualizarProducto(idProducto, producto, archivoImagen);
+            alert('Producto actualizado exitosamente');
+        } else {
+            // Crear nuevo producto
+            await crearProducto(producto, archivoImagen);
+            alert('Producto creado exitosamente');
+        }
+
+        mostrarProductos();  // Recargar la lista de productos
+        document.getElementById('formulario-producto').reset();  // Limpiar el formulario
+    } catch (error) {
+        console.error('Error al guardar producto:', error.message);
+        alert('Error al crear producto');
     }
+});
 
-    // Guardar productos actualizados en localStorage
-    localStorage.setItem('productos', JSON.stringify(productos));
+// Eliminar un producto
+async function eliminarProductoEvento(id) {
+    if (confirm('¿Estás seguro de que deseas eliminar este producto?')) {
+        try {
+            await eliminarProducto(id);
+            alert('Producto eliminado exitosamente');
+            mostrarProductos();  // Recargar la lista de productos
+        } catch (error) {
+            console.error('Error al eliminar producto:', error.message);
+        }
+    }
+}
 
-    // Actualizar lista de productos en la interfaz
+// Cargar productos y categorías cuando la página esté lista
+document.addEventListener('DOMContentLoaded', () => {
     mostrarProductos();
-
-    // Reiniciar el formulario
-    document.getElementById('formulario-producto').reset();
-}
-
-// Función para editar un producto
-function editarProducto(evento) {
-    const idProducto = evento.target.getAttribute('data-id');
-    const producto = productos.find(p => p.id === parseInt(idProducto));
-
-    document.getElementById('id-producto').value = producto.id;
-    document.getElementById('nombre-producto').value = producto.nombre;
-    document.getElementById('precio-producto').value = producto.precio;
-    document.getElementById('categoria-producto').value = producto.categoria;
-    document.getElementById('imagen-producto-preview').src = producto.imagen || '';
-}
-
-// Función para eliminar un producto
-function eliminarProducto(evento) {
-    const idProducto = evento.target.getAttribute('data-id');
-    productos = productos.filter(p => p.id !== parseInt(idProducto));
-
-    // Actualizar productos en localStorage
-    localStorage.setItem('productos', JSON.stringify(productos));
-
-    // Actualizar la lista en la interfaz
-    mostrarProductos();
-}
-
-// Agregar evento al formulario para guardar productos
-document.getElementById('formulario-producto').addEventListener('submit', guardarProducto);
-
-// Mostrar productos iniciales al cargar la página
-document.addEventListener('DOMContentLoaded', mostrarProductos);
+    cargarCategorias();  // Cargar las categorías en el select del formulario
+});
